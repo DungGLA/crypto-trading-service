@@ -1,6 +1,8 @@
 package com.assignment.cryptotradingservice.market.service;
 
+import com.assignment.cryptotradingservice.market.converter.PriceAggregationConverter;
 import com.assignment.cryptotradingservice.market.dto.ExchangeTicker;
+import com.assignment.cryptotradingservice.market.dto.PriceResponse;
 import com.assignment.cryptotradingservice.market.entity.MarketPrice;
 import com.assignment.cryptotradingservice.market.provider.PriceProvider;
 import com.assignment.cryptotradingservice.market.repository.MarketPriceRepository;
@@ -19,6 +21,8 @@ public class PriceAggregationService {
     private final List<PriceProvider> providers;
     private final MarketPriceRepository repository;
 
+    private final PriceAggregationConverter converter;
+
     public void aggregate() {
         List<CompletableFuture<List<ExchangeTicker>>> futures =
                 providers.stream()
@@ -32,6 +36,13 @@ public class PriceAggregationService {
 
         List<MarketPrice> bestPrices = calculateBest(allTickers);
         repository.saveAll(bestPrices);
+    }
+
+    public List<PriceResponse> getLatestBestPrice(List<String> symbols) {
+        List<MarketPrice> prices = repository.findLatestPrices(symbols);
+        return prices.stream()
+                .map(converter::toResponse)
+                .toList();
     }
 
     private List<MarketPrice> calculateBest(List<ExchangeTicker> tickers) {
