@@ -1,6 +1,8 @@
 package com.assignment.cryptotradingservice.trading.service;
 
+import com.assignment.cryptotradingservice.common.exception.UnauthorizedAccessException;
 import com.assignment.cryptotradingservice.common.helper.PageResponseMapper;
+import com.assignment.cryptotradingservice.common.helper.UserContext;
 import com.assignment.cryptotradingservice.common.response.PageResponse;
 import com.assignment.cryptotradingservice.market.dto.PriceResponse;
 import com.assignment.cryptotradingservice.market.service.PriceAggregationService;
@@ -27,11 +29,17 @@ import java.util.List;
 public class TradeService {
     // TODO: shouldn't call to market service directly
     private final PriceAggregationService priceAggregationService;
-    private final WalletRepository walletRepository;
+    private final WalletService walletService;
     private final TradeExecutionEngine executionEngine;
     private final TradeRepository tradeRepository;
+    private final UserContext userContext;
 
-    public PageResponse<TradeResponse> getHistory(Long userId, Pageable pageable) {
+    public PageResponse<TradeResponse> getHistory(Pageable pageable) {
+        Long userId = userContext.getUserId();
+        if (userId == null) {
+            throw new UnauthorizedAccessException();
+        }
+
         Page<TradeResponse> page = tradeRepository
                 .findByUserIdOrderByCreatedAtDesc(userId, pageable)
                 .map(trade -> TradeResponse.builder()
@@ -46,20 +54,26 @@ public class TradeService {
 
     @Transactional
     public TradeResponse executeTrade(TradeRequest req) {
+        Long userId = userContext.getUserId();
+        if (userId == null) {
+            throw new UnauthorizedAccessException();
+        }
+
         // TODO: catch exception if empty
         PriceResponse latestBestPrices = priceAggregationService.getLatestBestPrice(List.of(req.getSymbol())).get(0);
 
-        Wallet usdt = walletRepository.findByUserIdAndAsset(req.getUserId(), "USDT");
 
-        Wallet crypto = walletRepository.findByUserIdAndAsset(req.getUserId(), req.getSymbol().replace("USDT", ""));
+        Wallet usdt = walletService.findByUserIdAndAsset(userId, "USDT");
 
-        TradeExecutionInput input = buildExecutionInput(req, latestBestPrices, usdt, crypto);
+        Wallet crypto = walletService.findByUserIdAndAsset(userId, req.getSymbol().replace("USDT", ""));
+
+        TradeExecutionInput input = buildExecutionInput(req, latestBestPrices, usdt, crypto, userId);
 
         TradeExecutionResult result = executionEngine.execute(input);
 
         saveWallets(result);
 
-        Trade trade = saveTrade(req, result);
+        Trade trade = saveTrade(req, result, userId);
 
         return TradeResponse.builder()
                 .symbol(req.getSymbol())
@@ -75,10 +89,11 @@ public class TradeService {
             TradeRequest req,
             PriceResponse price,
             Wallet usdtWallet,
-            Wallet cryptoWallet
+            Wallet cryptoWallet,
+            Long userId
     ) {
         return TradeExecutionInput.builder()
-                .userId(req.getUserId())
+                .userId(userId)
                 .symbol(req.getSymbol())
                 .tradeType(req.getTradeType())
                 .quantity(req.getQuantity())
@@ -90,14 +105,14 @@ public class TradeService {
     }
 
     private void saveWallets(TradeExecutionResult result) {
-        walletRepository.save(result.getUpdatedUsdt());
-        walletRepository.save(result.getUpdatedCrypto());
+        walletService.save(result.getUpdatedUsdt());
+        walletService.save(result.getUpdatedCrypto());
     }
 
-    private Trade saveTrade(TradeRequest req, TradeExecutionResult result) {
+    private Trade saveTrade(TradeRequest req, TradeExecutionResult result, Long userId) {
         Trade trade = new Trade();
 
-        trade.setUserId(req.getUserId());
+        trade.setUserId(userId);
         trade.setSymbol(req.getSymbol());
         trade.setSide(req.getTradeType());
         trade.setQuantity(req.getQuantity());

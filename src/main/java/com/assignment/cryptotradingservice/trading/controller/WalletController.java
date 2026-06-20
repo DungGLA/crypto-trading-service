@@ -18,7 +18,6 @@ public class WalletController {
 
     @GetMapping
     public List<WalletBalanceResponse> getWallet() {
-        var userId= 1L; // TODO: get from auth
-        return walletService.getWallet(userId);
+        return walletService.getWallet();
     }
 }

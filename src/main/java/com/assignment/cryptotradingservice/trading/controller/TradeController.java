@@ -22,7 +22,6 @@ public class TradeController {
 
     @GetMapping("/history")
     public PageResponse<TradeResponse> getHistory(@PageableDefault(page = 0, size = 10) Pageable pageable) {
-        var userId = 1L; // TODO: get from auth
-        return tradeService.getHistory(userId, pageable);
+        return tradeService.getHistory(pageable);
     }
 }
