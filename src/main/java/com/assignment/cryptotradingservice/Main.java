@@ -1,13 +1,13 @@
-package com.assignment.crypto_trading_service;
+package com.assignment.cryptotradingservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CryptoTradingServiceApplication {
+public class Main {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CryptoTradingServiceApplication.class, args);
+		SpringApplication.run(Main.class, args);
 	}
 
 }

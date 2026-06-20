@@ -1,10 +1,10 @@
-package com.assignment.crypto_trading_service;
+package com.assignment.cryptotradingservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class CryptoTradingServiceApplicationTests {
+class MainTests {
 
 	@Test
 	void contextLoads() {
