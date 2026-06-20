@@ -1,5 +1,7 @@
 package com.assignment.cryptotradingservice.trading.service;
 
+import com.assignment.cryptotradingservice.common.helper.PageResponseMapper;
+import com.assignment.cryptotradingservice.common.response.PageResponse;
 import com.assignment.cryptotradingservice.market.dto.PriceResponse;
 import com.assignment.cryptotradingservice.market.service.PriceAggregationService;
 import com.assignment.cryptotradingservice.trading.dto.TradeExecutionInput;
@@ -12,6 +14,8 @@ import com.assignment.cryptotradingservice.trading.repository.TradeRepository;
 import com.assignment.cryptotradingservice.trading.repository.WalletRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -26,6 +30,19 @@ public class TradeService {
     private final WalletRepository walletRepository;
     private final TradeExecutionEngine executionEngine;
     private final TradeRepository tradeRepository;
+
+    public PageResponse<TradeResponse> getHistory(Long userId, Pageable pageable) {
+        Page<TradeResponse> page = tradeRepository
+                .findByUserIdOrderByCreatedAtDesc(userId, pageable)
+                .map(trade -> TradeResponse.builder()
+                        .symbol(trade.getSymbol())
+                        .price(trade.getPrice())
+                        .quantity(trade.getQuantity())
+                        .total(trade.getTotal())
+                        .timestamp(trade.getCreatedAt())
+                        .build());
+        return PageResponseMapper.from(page);
+    }
 
     @Transactional
     public TradeResponse executeTrade(TradeRequest req) {
