@@ -1,13 +1,15 @@
-package com.assignment.cryptotradingservice.wallet.entity;
+package com.assignment.cryptotradingservice.trading.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Entity
+@Data
 public class Wallet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
