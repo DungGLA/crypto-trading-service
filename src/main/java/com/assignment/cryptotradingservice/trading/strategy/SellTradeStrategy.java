@@ -1,5 +1,6 @@
 package com.assignment.cryptotradingservice.trading.strategy;
 
+import com.assignment.cryptotradingservice.common.exception.InsufficientBalanceException;
 import com.assignment.cryptotradingservice.trading.dto.TradeExecutionInput;
 import com.assignment.cryptotradingservice.trading.dto.TradeExecutionResult;
 import com.assignment.cryptotradingservice.trading.entity.Wallet;
@@ -23,7 +24,7 @@ public class SellTradeStrategy implements TradeExecutionStrategy {
         Wallet crypto = input.getCryptoWallet();
 
         if (crypto.getBalance().compareTo(input.getQuantity()) < 0) {
-            throw new RuntimeException("Insufficient asset");
+            throw new InsufficientBalanceException("Insufficient asset to sell");
         }
 
         crypto.setBalance(crypto.getBalance().subtract(input.getQuantity()));

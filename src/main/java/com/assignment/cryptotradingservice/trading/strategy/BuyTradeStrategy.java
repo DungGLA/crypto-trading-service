@@ -1,5 +1,6 @@
 package com.assignment.cryptotradingservice.trading.strategy;
 
+import com.assignment.cryptotradingservice.common.exception.InsufficientBalanceException;
 import com.assignment.cryptotradingservice.trading.dto.TradeExecutionInput;
 import com.assignment.cryptotradingservice.trading.dto.TradeExecutionResult;
 import com.assignment.cryptotradingservice.trading.entity.Wallet;
@@ -23,7 +24,7 @@ public class BuyTradeStrategy implements TradeExecutionStrategy {
         Wallet crypto = input.getCryptoWallet();
 
         if (usdt.getBalance().compareTo(total) < 0) {
-            throw new RuntimeException("Insufficient USDT");
+            throw new InsufficientBalanceException("Insufficient USDT to buy");
         }
 
         usdt.setBalance(usdt.getBalance().subtract(total));
