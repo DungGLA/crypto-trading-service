@@ -6,20 +6,20 @@ import com.assignment.cryptotradingservice.trading.strategy.TradeExecutionStrate
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class TradeExecutionEngine {
-    private final List<TradeExecutionStrategy> strategies;
+    private final Map<String, TradeExecutionStrategy> strategies;
 
     public TradeExecutionResult execute(TradeExecutionInput input) {
-
-        TradeExecutionStrategy strategy = strategies.stream()
-                .filter(s -> Objects.equals(s.getTradeType(), input.getTradeType()))
-                .findFirst()
-                .orElseThrow();
+        TradeExecutionStrategy strategy = strategies.get(input.getTradeType());
+        if (strategy == null) {
+            throw new IllegalArgumentException(
+                    "No strategy found for tradeType: " + input.getTradeType()
+            );
+        }
 
         return strategy.execute(input);
     }

@@ -1,3 +1,8 @@
+CREATE TABLE users (
+    id BIGINT PRIMARY KEY,
+    username VARCHAR(255)
+);
+
 INSERT INTO users(id, username)
 VALUES (1, 'test-user');
 

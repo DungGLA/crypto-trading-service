@@ -8,13 +8,8 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
-@Component
+@Component("SELL")
 public class SellTradeStrategy implements TradeExecutionStrategy {
-    @Override
-    public String getTradeType() {
-        return "SELL";
-    }
-
     @Override
     public TradeExecutionResult execute(TradeExecutionInput input) {
         BigDecimal price = input.getBestBid();
