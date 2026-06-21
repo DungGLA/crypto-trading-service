@@ -24,7 +24,6 @@ import java.util.concurrent.CompletableFuture;
 public class PriceAggregationServiceImpl implements PriceAggregationService {
     private final List<PriceProvider> providers;
     private final MarketPriceRepository repository;
-
     private final PriceAggregationConverter converter;
 
     @Override
@@ -60,9 +59,9 @@ public class PriceAggregationServiceImpl implements PriceAggregationService {
         Map<String, MarketPrice> map = new HashMap<>();
 
         for (ExchangeTicker ticket : tickers) {
-            MarketPrice mp = map.computeIfAbsent(ticket.getSymbol(), k ->
+            MarketPrice mp = map.computeIfAbsent(ticket.getSymbol(), key ->
                     MarketPrice.builder()
-                            .symbol(k)
+                            .symbol(key)
                             .bestBid(ticket.getBid())
                             .bestAsk(ticket.getAsk())
                             .timestamp(fetchTime)
