@@ -1,5 +1,6 @@
 package com.assignment.cryptotradingservice.trading.service;
 
+import com.assignment.cryptotradingservice.common.exception.TradingBadRequestException;
 import com.assignment.cryptotradingservice.common.exception.UnauthorizedAccessException;
 import com.assignment.cryptotradingservice.common.helper.PageResponseMapper;
 import com.assignment.cryptotradingservice.common.helper.UserContext;
@@ -13,16 +14,15 @@ import com.assignment.cryptotradingservice.trading.dto.TradeResponse;
 import com.assignment.cryptotradingservice.trading.entity.Trade;
 import com.assignment.cryptotradingservice.trading.entity.Wallet;
 import com.assignment.cryptotradingservice.trading.repository.TradeRepository;
+import io.micrometer.common.util.StringUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -56,13 +56,12 @@ public class TradeServiceImpl implements TradeService {
     @Override
     @Transactional
     public TradeResponse executeTrade(TradeRequest req) {
-        Long userId = userContext.getUserId();
-        if (userId == null) {
-            throw new UnauthorizedAccessException();
-        }
+        validateTradeRequest(req);
 
         // TODO: catch exception if empty
-        PriceResponse latestBestPrices = priceAggregationService.getLatestBestPrice(List.of(req.getSymbol())).get(0);
+        Long userId = userContext.getUserId();
+        String symbol = req.getSymbol();
+        PriceResponse latestBestPrices = priceAggregationService.getLatestBestPrice(List.of(symbol)).get(0);
 
         String cryptoAsset = req.getSymbol().replace("USDT", "");
         Wallet usdt = walletService.findByUserIdAndAssetOrCreate(userId, "USDT");
@@ -84,6 +83,22 @@ public class TradeServiceImpl implements TradeService {
                 .total(result.getTotal())
                 .tradeTime(trade.getTradeTime())
                 .build();
+    }
+
+    private void validateTradeRequest(TradeRequest req) {
+        Long userId = userContext.getUserId();
+        if (userId == null) {
+            throw new UnauthorizedAccessException();
+        }
+        if (StringUtils.isEmpty(req.getSymbol())) {
+            throw new TradingBadRequestException("Symbol is required");
+        }
+        if (StringUtils.isEmpty(req.getTradeType())) {
+            throw new TradingBadRequestException("Trade type is required");
+        }
+        if (req.getQuantity() == null || req.getQuantity().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            throw new TradingBadRequestException("Quantity must be greater than zero");
+        }
     }
 
     private TradeExecutionInput buildExecutionInput(

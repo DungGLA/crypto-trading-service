@@ -14,14 +14,15 @@ public interface MarketPriceRepository extends JpaRepository<MarketPrice, Long> 
     @Query("""
         SELECT mp
         FROM MarketPrice mp
-        WHERE mp.id IN (
-            SELECT MAX(m.id)
+        WHERE mp.timestamp = (
+            SELECT MAX(m.timestamp)
             FROM MarketPrice m
-            WHERE (:symbols IS NULL OR m.symbol IN :symbols)
-            GROUP BY m.symbol
+            WHERE m.symbol = mp.symbol
         )
+        AND (:filterBySymbols = false OR mp.symbol IN :symbols)
     """)
     List<MarketPrice> findLatestPrices(
-            @Param("symbols") List<String> symbols
+            @Param("symbols") List<String> symbols,
+            @Param("filterBySymbols") boolean filterBySymbols
     );
 }

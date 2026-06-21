@@ -8,12 +8,14 @@ import com.assignment.cryptotradingservice.market.provider.PriceProvider;
 import com.assignment.cryptotradingservice.market.repository.MarketPriceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,47 +37,43 @@ public class PriceAggregationServiceImpl implements PriceAggregationService {
                 .flatMap(List::stream)
                 .toList();
 
-        List<MarketPrice> bestPrices = calculateBest(allTickers);
+        List<MarketPrice> bestPrices = calculateBestPrice(allTickers);
         repository.saveAll(bestPrices);
     }
 
     @Override
     public List<PriceResponse> getLatestBestPrice(List<String> symbols) {
-        List<MarketPrice> prices = repository.findLatestPrices(symbols);
+        boolean isGetBySymbol = !CollectionUtils.isEmpty(symbols);
+        List<MarketPrice> prices = repository.findLatestPrices(symbols, isGetBySymbol);
         return prices.stream()
                 .map(converter::toResponse)
                 .toList();
     }
 
-    private List<MarketPrice> calculateBest(List<ExchangeTicker> tickers) {
-
+    private List<MarketPrice> calculateBestPrice(List<ExchangeTicker> tickers) {
         Instant fetchTime = Instant.now();
-        return tickers.stream()
-                .collect(Collectors.groupingBy(ExchangeTicker::getSymbol))
-                .values()
-                .stream()
-                .map(list -> {
+        Map<String, MarketPrice> map = new HashMap<>();
 
-                    BigDecimal bestBid = list.stream()
-                            .map(ExchangeTicker::getBid)
-                            .max(BigDecimal::compareTo)
-                            .orElse(BigDecimal.ZERO);
-
-                    BigDecimal bestAsk = list.stream()
-                            .map(ExchangeTicker::getAsk)
-                            .min(BigDecimal::compareTo)
-                            .orElse(BigDecimal.ZERO);
-
-                    String symbol = list.get(0).getSymbol();
-
-                    return MarketPrice.builder()
-                            .symbol(symbol)
-                            .bestBid(bestBid)
-                            .bestAsk(bestAsk)
+        for (ExchangeTicker ticket : tickers) {
+            MarketPrice mp = map.computeIfAbsent(ticket.getSymbol(), k ->
+                    MarketPrice.builder()
+                            .symbol(k)
+                            .bestBid(ticket.getBid())
+                            .bestAsk(ticket.getAsk())
                             .timestamp(fetchTime)
-                            .build();
-                })
-                .toList();
+                            .build()
+            );
+
+            if (ticket.getBid().compareTo(mp.getBestBid()) > 0) {
+                mp.setBestBid(ticket.getBid());
+            }
+
+            if (ticket.getAsk().compareTo(mp.getBestAsk()) < 0) {
+                mp.setBestAsk(ticket.getAsk());
+            }
+        }
+
+        return new ArrayList<>(map.values());
     }
 
 }
