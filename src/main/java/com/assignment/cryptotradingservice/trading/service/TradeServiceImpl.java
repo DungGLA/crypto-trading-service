@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.List;
@@ -58,16 +59,20 @@ public class TradeServiceImpl implements TradeService {
     public TradeResponse executeTrade(TradeRequest req) {
         validateTradeRequest(req);
 
-        // TODO: catch exception if empty
         Long userId = userContext.getUserId();
         String symbol = req.getSymbol();
-        PriceResponse latestBestPrices = priceAggregationService.getLatestBestPrice(List.of(symbol)).get(0);
 
+        List<PriceResponse> latestBestPrices = priceAggregationService.getLatestBestPrice(List.of(symbol));
+        if (CollectionUtils.isEmpty(latestBestPrices)) {
+            throw new TradingBadRequestException("Price data not available for symbol: " + symbol);
+        }
+
+        PriceResponse latestBestPrice = latestBestPrices.get(0);
         String cryptoAsset = req.getSymbol().replace("USDT", "");
         Wallet usdt = walletService.findByUserIdAndAssetOrCreate(userId, "USDT");
         Wallet crypto = walletService.findByUserIdAndAssetOrCreate(userId, cryptoAsset);
 
-        TradeExecutionInput input = buildExecutionInput(req, latestBestPrices, usdt, crypto, userId);
+        TradeExecutionInput input = buildExecutionInput(req, latestBestPrice, usdt, crypto, userId);
 
         TradeExecutionResult result = executionEngine.execute(input);
 
