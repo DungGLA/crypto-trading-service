@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 public class PriceAggregationConverter {
 
     public PriceResponse toResponse(MarketPrice price) {
-
         return PriceResponse.builder()
                 .symbol(price.getSymbol())
                 .bestBid(price.getBestBid())

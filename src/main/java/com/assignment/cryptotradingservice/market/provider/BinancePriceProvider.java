@@ -15,11 +15,6 @@ import static com.assignment.cryptotradingservice.common.constant.TradingConstan
 public class BinancePriceProvider implements PriceProvider {
     private final BinanceClient client;
 
-//    @Override
-//    public String getName() {
-//        return "BINANCE";
-//    }
-
     @Override
     public List<ExchangeTicker> fetchPrices() {
         return client.getPrices().stream()

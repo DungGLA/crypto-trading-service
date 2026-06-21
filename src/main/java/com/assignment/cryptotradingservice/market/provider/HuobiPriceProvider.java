@@ -14,11 +14,6 @@ import static com.assignment.cryptotradingservice.common.constant.TradingConstan
 public class HuobiPriceProvider implements PriceProvider {
     private final HuobiClient client;
 
-//    @Override
-//    public String getName() {
-//        return "HUOBI";
-//    }
-
     @Override
     public List<ExchangeTicker> fetchPrices() {
         return client.getPrices().stream()
