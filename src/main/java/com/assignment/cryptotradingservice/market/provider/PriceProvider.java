@@ -5,7 +5,7 @@ import com.assignment.cryptotradingservice.market.dto.ExchangeTicker;
 import java.util.List;
 
 public interface PriceProvider {
-    String getName();
+//    String getName();
 
     List<ExchangeTicker> fetchPrices();
 }

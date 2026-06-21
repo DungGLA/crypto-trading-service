@@ -7,6 +7,7 @@ import com.assignment.cryptotradingservice.market.entity.MarketPrice;
 import com.assignment.cryptotradingservice.market.provider.PriceProvider;
 import com.assignment.cryptotradingservice.market.repository.MarketPriceRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -19,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PriceAggregationServiceImpl implements PriceAggregationService {
     private final List<PriceProvider> providers;
     private final MarketPriceRepository repository;
@@ -29,7 +31,10 @@ public class PriceAggregationServiceImpl implements PriceAggregationService {
     public void aggregate() {
         List<CompletableFuture<List<ExchangeTicker>>> futures =
                 providers.stream()
-                        .map(p -> CompletableFuture.supplyAsync(p::fetchPrices))
+                        .map(p -> CompletableFuture.supplyAsync(p::fetchPrices).exceptionally(ex -> {
+                            log.error("Error fetching prices from provider: " + ex.getMessage() );
+                            return List.of();
+                        }))
                         .toList();
 
         List<ExchangeTicker> allTickers = futures.stream()

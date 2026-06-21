@@ -26,6 +26,7 @@ public class HuobiClient {
                     .uri(huobiApiUrl)
                     .retrieve()
                     .bodyToMono(HuobiResponse.class)
+                    .timeout(java.time.Duration.ofSeconds(3))
                     .block();
 
             if (response == null || !"ok".equalsIgnoreCase(response.getStatus())) {

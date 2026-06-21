@@ -15,10 +15,10 @@ import static com.assignment.cryptotradingservice.common.constant.TradingConstan
 public class BinancePriceProvider implements PriceProvider {
     private final BinanceClient client;
 
-    @Override
-    public String getName() {
-        return "BINANCE";
-    }
+//    @Override
+//    public String getName() {
+//        return "BINANCE";
+//    }
 
     @Override
     public List<ExchangeTicker> fetchPrices() {
@@ -28,7 +28,7 @@ public class BinancePriceProvider implements PriceProvider {
                         .symbol(b.getSymbol().toUpperCase())
                         .bid(new BigDecimal(b.getBidPrice()))
                         .ask(new BigDecimal(b.getAskPrice()))
-                        .exchange(getName())
+                        .exchange("BINANCE")
                         .build()
                 )
                 .toList();

@@ -14,10 +14,10 @@ import static com.assignment.cryptotradingservice.common.constant.TradingConstan
 public class HuobiPriceProvider implements PriceProvider {
     private final HuobiClient client;
 
-    @Override
-    public String getName() {
-        return "HUOBI";
-    }
+//    @Override
+//    public String getName() {
+//        return "HUOBI";
+//    }
 
     @Override
     public List<ExchangeTicker> fetchPrices() {
@@ -27,7 +27,7 @@ public class HuobiPriceProvider implements PriceProvider {
                         .symbol(h.getSymbol().toUpperCase())
                         .bid(h.getBid())
                         .ask(h.getAsk())
-                        .exchange(getName())
+                        .exchange("HUOBI")
                         .build()
                 )
                 .toList();

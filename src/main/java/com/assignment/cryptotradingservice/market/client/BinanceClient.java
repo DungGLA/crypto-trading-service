@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,6 +25,7 @@ public class BinanceClient {
                     .uri(binanceApiUrl)
                     .retrieve()
                     .bodyToMono(BinanceResponse[].class)
+                    .timeout(java.time.Duration.ofSeconds(3))
                     .block();
             if (response == null) {
                 log.warn("Binance response is null");
