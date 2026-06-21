@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TradeRepository extends JpaRepository<Trade, Long> {
-    Page<Trade> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+    Page<Trade> findByUserIdOrderByTradeTimeDesc(Long userId, Pageable pageable);
 }

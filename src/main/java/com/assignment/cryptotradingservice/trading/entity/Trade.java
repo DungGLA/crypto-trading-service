@@ -7,7 +7,7 @@ import jakarta.persistence.Id;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 @Entity
 @Data
@@ -20,7 +20,7 @@ public class Trade {
 
     private String symbol;
 
-    private String side; // BUY / SELL
+    private String tradeType;
 
     private BigDecimal quantity;
 
@@ -28,5 +28,5 @@ public class Trade {
 
     private BigDecimal total;
 
-    private Timestamp createdAt;
+    private Instant tradeTime;
 }

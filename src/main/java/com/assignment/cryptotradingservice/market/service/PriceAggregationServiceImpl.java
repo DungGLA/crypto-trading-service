@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -49,6 +49,7 @@ public class PriceAggregationServiceImpl implements PriceAggregationService {
 
     private List<MarketPrice> calculateBest(List<ExchangeTicker> tickers) {
 
+        Instant fetchTime = Instant.now();
         return tickers.stream()
                 .collect(Collectors.groupingBy(ExchangeTicker::getSymbol))
                 .values()
@@ -71,7 +72,7 @@ public class PriceAggregationServiceImpl implements PriceAggregationService {
                             .symbol(symbol)
                             .bestBid(bestBid)
                             .bestAsk(bestAsk)
-                            .createdAt(Timestamp.from(java.time.Instant.now()))
+                            .timestamp(fetchTime)
                             .build();
                 })
                 .toList();

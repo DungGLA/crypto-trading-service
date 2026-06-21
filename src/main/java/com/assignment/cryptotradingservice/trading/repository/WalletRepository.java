@@ -1,14 +1,14 @@
 package com.assignment.cryptotradingservice.trading.repository;
 
 import com.assignment.cryptotradingservice.trading.entity.Wallet;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
         Wallet findByUserIdAndAsset(Long userId, String asset);
 
-        List<Wallet> findByUserId(Long userId);
+        Page<Wallet> findByUserIdOrderByAssetAsc(Long userId, Pageable pageable);
 }

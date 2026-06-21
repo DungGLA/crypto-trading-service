@@ -13,7 +13,7 @@ public class PriceAggregationConverter {
                 .symbol(price.getSymbol())
                 .bestBid(price.getBestBid())
                 .bestAsk(price.getBestAsk())
-                .createdAt(price.getCreatedAt())
+                .timestamp(price.getTimestamp())
                 .build();
     }
 }

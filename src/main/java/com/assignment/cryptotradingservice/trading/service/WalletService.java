@@ -1,14 +1,14 @@
 package com.assignment.cryptotradingservice.trading.service;
 
+import com.assignment.cryptotradingservice.common.response.PageResponse;
 import com.assignment.cryptotradingservice.trading.dto.WalletBalanceResponse;
 import com.assignment.cryptotradingservice.trading.entity.Wallet;
-
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 public interface WalletService {
     void save(Wallet wallet);
 
-    Wallet findByUserIdAndAsset(Long userId, String asset);
+    Wallet findByUserIdAndAssetOrCreate(Long userId, String asset);
 
-    List<WalletBalanceResponse> getWallet();
+    PageResponse<WalletBalanceResponse> getWallet(Pageable pageable);
 }

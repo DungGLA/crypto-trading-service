@@ -10,7 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 @Entity
 @Data
@@ -28,5 +28,5 @@ public class MarketPrice {
 
     private BigDecimal bestAsk;
 
-    private Timestamp createdAt;
+    private Instant timestamp;
 }

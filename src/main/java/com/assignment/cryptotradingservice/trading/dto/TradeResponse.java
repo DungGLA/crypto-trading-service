@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -14,5 +14,5 @@ public class TradeResponse {
     private BigDecimal price;
     private BigDecimal quantity;
     private BigDecimal total;
-    private Timestamp timestamp;
+    private Instant tradeTime;
 }

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -40,13 +41,14 @@ public class TradeServiceImpl implements TradeService {
         }
 
         Page<TradeResponse> page = tradeRepository
-                .findByUserIdOrderByCreatedAtDesc(userId, pageable)
+                .findByUserIdOrderByTradeTimeDesc(userId, pageable)
                 .map(trade -> TradeResponse.builder()
                         .symbol(trade.getSymbol())
                         .price(trade.getPrice())
                         .quantity(trade.getQuantity())
                         .total(trade.getTotal())
-                        .timestamp(trade.getCreatedAt())
+                        .tradeType(trade.getTradeType())
+                        .tradeTime(trade.getTradeTime())
                         .build());
         return PageResponseMapper.from(page);
     }
@@ -62,10 +64,9 @@ public class TradeServiceImpl implements TradeService {
         // TODO: catch exception if empty
         PriceResponse latestBestPrices = priceAggregationService.getLatestBestPrice(List.of(req.getSymbol())).get(0);
 
-
-        Wallet usdt = walletService.findByUserIdAndAsset(userId, "USDT");
-
-        Wallet crypto = walletService.findByUserIdAndAsset(userId, req.getSymbol().replace("USDT", ""));
+        String cryptoAsset = req.getSymbol().replace("USDT", "");
+        Wallet usdt = walletService.findByUserIdAndAssetOrCreate(userId, "USDT");
+        Wallet crypto = walletService.findByUserIdAndAssetOrCreate(userId, cryptoAsset);
 
         TradeExecutionInput input = buildExecutionInput(req, latestBestPrices, usdt, crypto, userId);
 
@@ -81,7 +82,7 @@ public class TradeServiceImpl implements TradeService {
                 .price(result.getPrice())
                 .quantity(req.getQuantity())
                 .total(result.getTotal())
-                .timestamp(trade.getCreatedAt())
+                .tradeTime(trade.getTradeTime())
                 .build();
     }
 
@@ -114,11 +115,11 @@ public class TradeServiceImpl implements TradeService {
 
         trade.setUserId(userId);
         trade.setSymbol(req.getSymbol());
-        trade.setSide(req.getTradeType());
+        trade.setTradeType(req.getTradeType());
         trade.setQuantity(req.getQuantity());
         trade.setPrice(result.getPrice());
         trade.setTotal(result.getTotal());
-        trade.setCreatedAt(Timestamp.from(Instant.now()));
+        trade.setTradeTime(Instant.now());
 
         return tradeRepository.save(trade);
     }

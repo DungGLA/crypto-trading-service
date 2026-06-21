@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -12,5 +13,5 @@ public class PriceResponse {
     private String symbol;
     private BigDecimal bestBid;
     private BigDecimal bestAsk;
-    private Timestamp createdAt;
+    private Instant timestamp;
 }

@@ -6,11 +6,11 @@ CREATE TABLE users (
 INSERT INTO users(id, username)
 VALUES (1, 'test-user');
 
+CREATE INDEX idx_wallet_user_asset
+ON wallet(user_id, asset);
+
+CREATE INDEX idx_trade_user_trade_time
+ON trade(user_id, trade_time);
+
 INSERT INTO wallet(user_id, asset, balance)
 VALUES (1, 'USDT', 50000);
-
-INSERT INTO wallet(user_id, asset, balance)
-VALUES (1, 'BTC', 0);
-
-INSERT INTO wallet(user_id, asset, balance)
-VALUES (1, 'ETH', 0);

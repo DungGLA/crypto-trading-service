@@ -2,6 +2,8 @@ package com.assignment.cryptotradingservice.market.client;
 
 import com.assignment.cryptotradingservice.market.dto.BinanceResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -11,19 +13,31 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class BinanceClient {
     private final WebClient webClient;
 
-    private static final String URL = "https://api.binance.com/api/v3/ticker/bookTicker";
+    @Value("${binance.api.url}")
+    private String binanceApiUrl;
 
     public List<BinanceResponse> getPrices() {
-        BinanceResponse[] response = webClient.get()
-                .uri(URL)
-                .retrieve()
-                .bodyToMono(BinanceResponse[].class)
-                .timeout(Duration.ofSeconds(3))
-                .block();
-        return response == null ? List.of() : Arrays.asList(response);
+        try {
+            BinanceResponse[] response = webClient.get()
+                    .uri(binanceApiUrl)
+                    .retrieve()
+                    .bodyToMono(BinanceResponse[].class)
+                    .block();
+            if (response == null) {
+                log.warn("Binance response is null");
+                return List.of();
+            }
+
+            return Arrays.asList(response);
+        } catch (Exception e) {
+            log.error("Error calling Binance API", e);
+            return List.of();
+        }
+
     }
 
 }

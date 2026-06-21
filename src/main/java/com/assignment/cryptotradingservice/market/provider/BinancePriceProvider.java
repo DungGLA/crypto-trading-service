@@ -12,7 +12,7 @@ import static com.assignment.cryptotradingservice.common.constant.TradingConstan
 
 @Component
 @RequiredArgsConstructor
-public class BinancePriceProvider implements PriceProvider{
+public class BinancePriceProvider implements PriceProvider {
     private final BinanceClient client;
 
     @Override
